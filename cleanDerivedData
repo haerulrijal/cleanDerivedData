@@ -2,9 +2,10 @@
 
 osascript <<EOD
 set derivedDataPath to (POSIX path of ((path to home folder) as text) & "Library/Developer/Xcode/DerivedData/") as string
-set derivedDataAlias to POSIX file derivedDataPath as alias
+set derivedDataAlias to false
 
 try
+	set derivedDataAlias to POSIX file derivedDataPath as alias
 	set derivedDataAliasExist to info for alias derivedDataAlias
 on error
 	set derivedDataAliasExist to false
@@ -21,10 +22,25 @@ if derivedDataAliasExist is not false then
 		end repeat
 	else
 		set msg to "Nothing there anymore"
-		log msg
 		do shell script "echo " & msg
-		tell application "Finder" to empty trash
 	end if
+else 
+	set pathNotFound to "Path not Found: " & derivedDataPath
+	do shell script "echo " & pathNotFound
 end if
 EOD
+echo
+printf "Do you want to emptying the trash ? [Y/N] : "
+read MYCHOICE
+case $MYCHOICE in
+	[yY] | [yY][Ee][Ss] )
+		echo ; echo "Emptying the trash ..."
+		osascript -e "tell application \"Finder\" to empty trash"
+		;;
+	*)
+		echo ; echo "You can do it later ..."
+		;;
+esac
+echo ; echo "Exiting ..."
+
 
