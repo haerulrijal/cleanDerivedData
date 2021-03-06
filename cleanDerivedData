@@ -1,0 +1,30 @@
+#!/bin/bash
+
+osascript <<EOD
+set derivedDataPath to (POSIX path of ((path to home folder) as text) & "Library/Developer/Xcode/DerivedData/") as string
+set derivedDataAlias to POSIX file derivedDataPath as alias
+
+try
+	set derivedDataAliasExist to info for alias derivedDataAlias
+on error
+	set derivedDataAliasExist to false
+end try
+
+if derivedDataAliasExist is not false then
+	set fileList to list folder derivedDataAlias
+	set numberOfItems to number of items in fileList
+	if (numberOfItems > 0) then
+		repeat with i from 1 to numberOfItems
+			set thisItem to item i of fileList
+			set folderitem to POSIX file (derivedDataPath & thisItem)
+			tell application "Finder" to move folderitem to trash
+		end repeat
+	else
+		set msg to "Nothing there anymore"
+		log msg
+		do shell script "echo " & msg
+		tell application "Finder" to empty trash
+	end if
+end if
+EOD
+
